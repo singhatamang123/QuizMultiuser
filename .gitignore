@@ -1,0 +1,24 @@
+# Next.js
+tarka-quiz/node_modules/
+tarka-quiz/.next/
+tarka-quiz/out/
+tarka-quiz/build/
+tarka-quiz/.env.local
+tarka-quiz/.env.development.local
+tarka-quiz/.env.test.local
+tarka-quiz/.env.production.local
+
+# Python
+server/venv/
+server/__pycache__/
+server/*.pyc
+server/.env
+server/.pytest_cache/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.log

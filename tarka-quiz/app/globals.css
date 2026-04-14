@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+:root {
+  --font-base: var(--font-outfit), -apple-system, sans-serif;
+
+  /* Sophisticated Gaming Palette */
+  --bg-start: #2e1065; /* Deeper Purple */
+  --bg-end: #0f172a;   /* Midnight Navy */
+
+  --primary: #eb1041;
+  --primary-hover: #c60d37;
+  --primary-shadow: #9e0a2c;
+
+  --secondary: #2563eb;
+  --secondary-hover: #1d4ed8;
+  
+  /* Warmer, Matching Surfaces */
+  --surface: #fdfdff;
+  --surface-border: rgba(37, 99, 235, 0.15); /* Tinted Indigo Border */
+
+  /* Themed Typography */
+  --text-main: #1a1b3b; /* Deep Indigo Navy */
+  --text-sub: #475569;
+  --text-white: #ffffff;
+
+  --success: #16a34a;
+  --error: #dc2626;
+  --warning: #ca8a04;
+
+  /* Shadow Tints */
+  --shadow-color: rgba(0, 0, 0, 0.25);
+  --glow-purple: rgba(70, 23, 143, 0.3);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  font-family: var(--font-base);
+  color: var(--text-main);
+  background: radial-gradient(circle at center, var(--bg-start) 0%, var(--bg-end) 100%);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Premium Card Overhaul */
+.app-container,
+.main-content,
+.card {
+  background: var(--surface);
+  border-radius: 32px;
+  box-shadow: 
+    0 12px 0px var(--shadow-color),
+    0 0 40px var(--glow-purple); /* Subtle background glow */
+  border: 4px solid var(--surface-border);
+  padding: 32px;
+}
+
+/* Glassmorphic Variant */
+.card-glass {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 4px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Interactive Typography */
+h1, h2, h3 {
+  color: var(--text-white);
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  letter-spacing: -0.02em;
+}
+
+/* Premium 3D Buttons */
+button {
+  transition: all 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.btn-3d {
+  position: relative;
+  border: none;
+  background: var(--primary);
+  color: white;
+  padding: 18px 28px;
+  border-radius: 20px;
+  box-shadow: 0 8px 0 var(--primary-shadow);
+  cursor: pointer;
+}
+
+.btn-3d:active {
+  transform: translateY(4px);
+  box-shadow: 0 4px 0 var(--primary-shadow);
+}
+
+/* High Contrast Accent Text */
+.accent-gold {
+  color: #ffbe0b;
+  text-shadow: 0 0 10px rgba(255, 190, 11, 0.3);
+}
