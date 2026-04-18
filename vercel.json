@@ -1,6 +1,0 @@
-{
-  "buildCommand": "cd tarka-quiz && npm install && npm run build",
-  "outputDirectory": "tarka-quiz/.next",
-  "installCommand": "cd tarka-quiz && npm install",
-  "framework": "nextjs"
-}
