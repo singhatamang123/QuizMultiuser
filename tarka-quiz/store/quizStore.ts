@@ -7,14 +7,14 @@ export interface Player {
   name: string
   tole: string
   score: number
-  streak: number
+  streak: number          // ← remains required
 }
 
 export interface Question {
   index: number
   total: number
   text: string
-  options: string[]   // ["A. Pokhara", "B. Bhaktapur", ...]
+  options: string[]
   category: string
   time_limit: number
 }
@@ -27,7 +27,7 @@ export interface AnswerResult {
 }
 
 export interface RoundResult {
-  correct_answer: string   // "B"
+  correct_answer: string
   explanation: string
   leaderboard: Player[]
 }
@@ -71,9 +71,14 @@ interface QuizState {
 const initial = {
   myName: '', myTole: '', myId: '', isHost: false, roomCode: '',
   screen: 'join' as GameScreen,
-  players: [], countdown: 3, question: null,
-  answerResult: null, selectedAnswer: null, streak: 0,
-  roundResult: null, finalLeaderboard: [],
+  players: [], 
+  countdown: 3, 
+  question: null,
+  answerResult: null, 
+  selectedAnswer: null, 
+  streak: 0,
+  roundResult: null, 
+  finalLeaderboard: [],
 }
 
 export const useQuizStore = create<QuizState>((set) => ({
@@ -83,10 +88,9 @@ export const useQuizStore = create<QuizState>((set) => ({
   setScreen: (screen) => set({ screen }),
   setPlayers: (players) => set({ players }),
   addPlayer: (p) => set((s) => {
-  // Don't add if already in list
-  if (s.players.find(x => x.id === p.id)) return s
-  return { players: [...s.players, p] }
-}),
+    if (s.players.find(x => x.id === p.id)) return s
+    return { players: [...s.players, p] }
+  }),
   removePlayer: (id) => set((s) => ({ players: s.players.filter(p => p.id !== id) })),
   setCountdown: (countdown) => set({ countdown }),
   setQuestion: (question) => set({ question, selectedAnswer: null, answerResult: null }),
@@ -96,18 +100,16 @@ export const useQuizStore = create<QuizState>((set) => ({
   setRoundResult: (roundResult) => set({ roundResult }),
   setFinalLeaderboard: (finalLeaderboard) => set({ finalLeaderboard }),
   reset: () => set(initial),
-  
 }))
-
 
 // ── Dev mock helpers ─────────────────────────────────────────────────────
 export function mockLobby() {
   const s = useQuizStore.getState()
   s.setRoom('TARK42', true)
   s.setPlayers([
-    { id: '1', name: 'Aarav Sharma', tole: 'Patan', score: 0 },
-    { id: '2', name: 'Priya KC', tole: 'Thamel', score: 0 },
-    { id: '3', name: 'Rohan Thapa', tole: 'Baneshwor', score: 0 },
+    { id: '1', name: 'Aarav Sharma', tole: 'Patan', score: 0, streak: 0 },   // ← Fixed
+    { id: '2', name: 'Priya KC',     tole: 'Thamel', score: 0, streak: 0 },   // ← Fixed
+    { id: '3', name: 'Rohan Thapa',  tole: 'Baneshwor', score: 0, streak: 0 } // ← Fixed
   ])
   s.setScreen('lobby')
 }
@@ -127,14 +129,20 @@ export function mockQuestion() {
 
 export function mockScoring() {
   const s = useQuizStore.getState()
-  s.setAnswerResult({ correct: true, points: 850, your_total: 850 })
+  s.setAnswerResult({ 
+    correct: true, 
+    points: 850, 
+    your_total: 850,
+    streak: 1                    // ← Also added here (good practice)
+  })
+  
   s.setRoundResult({
     correct_answer: 'C',
     explanation: 'Pashupatinath Temple is on the banks of the Bagmati River in Kathmandu.',
     leaderboard: [
-      { id: '1', name: 'Aarav Sharma', tole: 'Patan', score: 850 },
-      { id: '3', name: 'Rohan Thapa', tole: 'Baneshwor', score: 700 },
-      { id: '2', name: 'Priya KC', tole: 'Thamel', score: 620 },
+      { id: '1', name: 'Aarav Sharma', tole: 'Patan', score: 850, streak: 3 },   // ← Fixed
+      { id: '3', name: 'Rohan Thapa',  tole: 'Baneshwor', score: 700, streak: 1 }, // ← Fixed
+      { id: '2', name: 'Priya KC',     tole: 'Thamel', score: 620, streak: 0 }    // ← Fixed
     ],
   })
   s.setScreen('scoring')
@@ -143,9 +151,9 @@ export function mockScoring() {
 export function mockGameOver() {
   const s = useQuizStore.getState()
   s.setFinalLeaderboard([
-    { id: '1', name: 'Aarav Sharma', tole: 'Patan', score: 8420 },
-    { id: '3', name: 'Rohan Thapa', tole: 'Baneshwor', score: 7100 },
-    { id: '2', name: 'Priya KC', tole: 'Thamel', score: 6250 },
+    { id: '1', name: 'Aarav Sharma', tole: 'Patan', score: 8420, streak: 5 },    // ← Fixed
+    { id: '3', name: 'Rohan Thapa',  tole: 'Baneshwor', score: 7100, streak: 2 }, // ← Fixed
+    { id: '2', name: 'Priya KC',     tole: 'Thamel', score: 6250, streak: 1 }    // ← Fixed
   ])
   s.setScreen('gameover')
 }
