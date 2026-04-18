@@ -5,7 +5,7 @@ const nextConfig = {
     unoptimized: true,
   },
   basePath: '/QuizMultiuser',
-assetPrefix: '/QuizMultiuser/',
+  assetPrefix: '/QuizMultiuser/',
   trailingSlash: true,
 };
 
