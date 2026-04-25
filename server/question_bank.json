@@ -1,0 +1,26 @@
+[
+  {
+    "text": "What is the capital of Nepal?",
+    "options": [
+      "A. Pokhara",
+      "B. Bhaktapur",
+      "C. Kathmandu",
+      "D. Lalitpur"
+    ],
+    "answer": "C",
+    "explanation": "Kathmandu is the capital and largest city of Nepal.",
+    "category": "General Knowledge"
+  },
+  {
+    "text": "What is the physical part of a computer called?",
+    "options": [
+      "A. Software",
+      "B. Malware",
+      "C. Hardware",
+      "D. Operating System"
+    ],
+    "answer": "C",
+    "explanation": "Hardware refers to the physical components you can touch, like the monitor or CPU.",
+    "category": "Class V"
+  }
+]

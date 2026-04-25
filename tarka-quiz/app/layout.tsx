@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Outfit } from 'next/font/google'
 import './globals.css'
 
@@ -8,8 +8,23 @@ const outfit = Outfit({
 })
 
 export const metadata: Metadata = {
-  title: 'Tarka Quiz',
-  description: 'Nepal ko sabai bhanda tez trivia',
+  title: 'EduPulse Quiz',
+  description: 'Interactive Classroom Quiz for Tarka students',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'EduPulse',
+  },
+}
+
+export const viewport: Viewport = {
+  themeColor: '#0F172A',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
 }
 
 export default function RootLayout({

@@ -77,7 +77,7 @@ export default function ScoringScreen() {
                 </span>
 
                 <div className={styles.avatar}>
-                  {p.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}
+                  {p.avatar}
                 </div>
 
                 <div className={styles.playerInfo}>

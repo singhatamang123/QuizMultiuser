@@ -161,6 +161,50 @@
   width: 100%;
 }
 
+.adminTracker {
+  background: white;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  border: 1px solid #f1f5f9;
+}
+
+.trackerHeader {
+  font-size: 14px;
+  font-weight: 700;
+  color: #64748b;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.trackerDots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.trackerDot {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  opacity: 0.4;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 2px solid #e2e8f0;
+}
+
+.dotDone {
+  opacity: 1;
+  background: #ecfdf5;
+  border-color: #10b981;
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.2);
+}
+
 .statusWaiting {
   font-size: 20px;
   color: var(--text-white);
@@ -207,8 +251,73 @@
   letter-spacing: 1px;
 }
 
+.urgentBg {
+  background: radial-gradient(circle at center, #991b1b 0%, var(--bg-end) 100%) !important;
+  animation: pulseBg 0.5s infinite alternate ease-in-out;
+}
+
+@keyframes pulseBg {
+  from { opacity: 1; }
+  to { opacity: 0.8; }
+}
+
 @media (max-width: 600px) {
+  .page {
+    padding: 12px 12px 24px; /* Much smaller padding */
+    justify-content: flex-start; /* Start from top */
+  }
+
+  .header {
+    margin-bottom: 12px;
+  }
+
+  .questionMeta {
+    font-size: 13px;
+  }
+
+  .timerBar {
+    width: 100px; /* Slimmer timer */
+    height: 12px;
+  }
+
+  .timeLeft {
+    font-size: 18px;
+  }
+
+  .card {
+    padding: 24px 16px; /* Tighten question card */
+    margin-bottom: 16px;
+    border-radius: 20px;
+  }
+
+  .questionText {
+    font-size: 20px; /* Smaller question font */
+  }
+
   .optionsGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* Keep 1 column for readability */
+    gap: 10px; /* Tighter gap */
+  }
+
+  .option {
+    padding: 14px 16px; /* Slimmer buttons */
+    font-size: 16px; /* Smaller option font */
+    gap: 12px;
+    border-radius: 14px;
+  }
+
+  .letter {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  .statusWrap {
+    margin-top: 20px;
+  }
+
+  .statusResult {
+    font-size: 18px;
+    padding: 12px 24px;
   }
 }

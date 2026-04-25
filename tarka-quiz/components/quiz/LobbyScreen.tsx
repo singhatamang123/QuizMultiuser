@@ -8,8 +8,8 @@ import { useSoundEffects } from '../../hooks/useSoundEffects'
 import styles from './LobbyScreen.module.css'
 
 export default function LobbyScreen() {
-  const { roomCode, players, isHost } = useQuizStore()
-  const { startGame } = useQuizSocket()
+  const { roomCode, players, isHost, myId } = useQuizStore()
+  const { startGame, kickPlayer, stopGame } = useQuizSocket()
   const { play } = useSoundEffects()
   const prevPlayersCount = useRef(players.length)
 
@@ -93,30 +93,60 @@ export default function LobbyScreen() {
                 transition={{ type: "spring", bounce: 0.5 }}
                 className={styles.chip}
               >
-                <div className={styles.dot} />
-                {p.name}
-                <span style={{ color: '#9CA3AF', fontSize: '12px' }}>
-                  · {p.tole}
-                </span>
+                <div className={styles.avatar}>{p.avatar}</div>
+                <div className={styles.playerDetails}>
+                  <span className={styles.playerName}>{p.name}</span>
+                  <span className={styles.playerTole}>{p.tole}</span>
+                </div>
+                {isHost && p.id !== myId && (
+                  <button 
+                    onClick={() => kickPlayer(p.id)}
+                    style={{
+                      background: 'none', border: 'none', color: '#EF4444', 
+                      marginLeft: '8px', cursor: 'pointer', fontSize: '16px',
+                      fontWeight: 'bold'
+                    }}
+                    title="Kick player"
+                  >
+                    ×
+                  </button>
+                )}
               </motion.div>
             ))}
           </AnimatePresence>
         </motion.div>
 
         {isHost ? (
-          <motion.button
-            whileHover={canStart ? { scale: 1.02, y: -2 } : {}}
-            whileTap={canStart ? { scale: 0.98 } : {}}
-            className={canStart ? styles.btnPrimary : styles.btnDisabled}
-            onClick={() => {
-              if (canStart) {
-                play('click')
-                startGame('Nepal general')
-              }
-            }}
-          >
-            {canStart ? 'Start game' : 'Waiting for more players...'}
-          </motion.button>
+          <div className={styles.hostActions}>
+            <motion.button
+              whileHover={canStart ? { scale: 1.02, y: -2 } : {}}
+              whileTap={canStart ? { scale: 0.98 } : {}}
+              className={canStart ? styles.btnPrimary : styles.btnDisabled}
+              onClick={() => {
+                if (canStart) {
+                  play('click')
+                  const mode = localStorage.getItem('tarka_generator_mode') || 'ai'
+                  if (mode === 'bank') {
+                    const custom = JSON.parse(localStorage.getItem('tarka_custom_questions') || '[]')
+                    startGame('Bank', undefined, custom)
+                  } else {
+                    const cat = localStorage.getItem('tarka_category') || 'Class V'
+                    const topic = localStorage.getItem('tarka_topic') || ''
+                    startGame(cat, topic)
+                  }
+                }
+              }}
+            >
+              {canStart ? 'Start game' : 'Waiting for more players...'}
+            </motion.button>
+            <motion.button
+              whileHover={{ color: '#EF4444' }}
+              className={styles.stopBtn}
+              onClick={() => { play('click'); stopGame() }}
+            >
+              Stop & Close Room
+            </motion.button>
+          </div>
         ) : (
           <div className={styles.waitingText}>
             <div className={styles.spinner} />

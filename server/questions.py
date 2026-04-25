@@ -1,163 +1,382 @@
 import random
+import os
+import json
+from google import genai
+from dotenv import load_dotenv
 from models import Question
 
-# 20 hardcoded Nepal trivia questions
-# We will replace this with Claude API later
+load_dotenv()
+
+# Configure Gemini
+api_key = os.getenv("GEMINI_API_KEY")
+client = None
+if api_key:
+    client = genai.Client(api_key=api_key)
+
+# Hardcoded fallback questions
 QUESTION_BANK: list[Question] = [
+    # Class V - Fundamentals, Shortcuts, Types
     Question(
-        text="Which river is considered the holiest in Nepal?",
-        options=["A. Koshi", "B. Narayani", "C. Bagmati", "D. Karnali"],
-        answer="C",
-        explanation="The Bagmati River is considered the holiest river in Nepal. Pashupatinath Temple sits on its banks.",
-        category="Nepal general",
-    ),
-    Question(
-        text="What is the national bird of Nepal?",
-        options=["A. Peacock", "B. Danphe (Himalayan Monal)", "C. Eagle", "D. Crane"],
+        text="What is a computer?",
+        options=["A. A magic box", "B. An electronic machine", "C. A mechanical engine", "D. A display device"],
         answer="B",
-        explanation="The Danphe, also known as the Himalayan Monal, is the national bird of Nepal.",
-        category="Nepal general",
+        explanation="A computer is an electronic machine that processes information and data.",
+        category="Class V",
     ),
     Question(
-        text="In which year did Nepal become a federal democratic republic?",
-        options=["A. 2005", "B. 2006", "C. 2008", "D. 2010"],
+        text="Which of the following is considered the brain of the computer?",
+        options=["A. Monitor", "B. Keyboard", "C. CPU", "D. Mouse"],
         answer="C",
-        explanation="Nepal was declared a Federal Democratic Republic on May 28, 2008, ending 240 years of monarchy.",
-        category="Nepal general",
+        explanation="The CPU (Central Processing Unit) is considered the brain of the computer.",
+        category="Class V",
     ),
     Question(
-        text="What is the highest peak in Nepal?",
-        options=["A. Kanchenjunga", "B. Lhotse", "C. Makalu", "D. Mount Everest"],
+        text="What is the shortcut key for copying text in MS-Word?",
+        options=["A. Ctrl + C", "B. Ctrl + X", "C. Ctrl + V", "D. Ctrl + Z"],
+        answer="A",
+        explanation="Ctrl + C is used to copy the selected text in MS-Word.",
+        category="Class V",
+    ),
+    Question(
+        text="Which type of computer is easily portable and can be carried on your lap?",
+        options=["A. Desktop", "B. Supercomputer", "C. Laptop", "D. Mainframe"],
+        answer="C",
+        explanation="A laptop is designed to be portable and can be easily used on a person's lap.",
+        category="Class V",
+    ),
+    Question(
+        text="What is the shortcut key to undo an action in MS-Word?",
+        options=["A. Ctrl + Z", "B. Ctrl + Y", "C. Ctrl + U", "D. Ctrl + X"],
+        answer="A",
+        explanation="Ctrl + Z is the shortcut to undo your last action.",
+        category="Class V",
+    ),
+    Question(
+        text="Which device is used to type text into a computer?",
+        options=["A. Printer", "B. Keyboard", "C. Speakers", "D. Scanner"],
+        answer="B",
+        explanation="The keyboard is the primary input device used for typing characters and numbers.",
+        category="Class V"
+    ),
+    Question(
+        text="What does a mouse help us do on a computer screen?",
+        options=["A. Print papers", "B. Hear sound", "C. Point and Click", "D. Store files"],
+        answer="C",
+        explanation="A mouse is a pointing device that allows us to interact with items on the screen.",
+        category="Class V"
+    ),
+    Question(
+        text="Which of these is an Output device?",
+        options=["A. Monitor", "B. Microphone", "C. Mouse", "D. Webcam"],
+        answer="A",
+        explanation="The monitor shows (outputs) the information processed by the computer.",
+        category="Class V"
+    ),
+    Question(
+        text="What is the physical part of a computer called?",
+        options=["A. Software", "B. Malware", "C. Hardware", "D. Operating System"],
+        answer="C",
+        explanation="Hardware refers to the physical components you can touch, like the monitor or CPU.",
+        category="Class V"
+    ),
+    Question(
+        text="Which key is used to start a new line while typing?",
+        options=["A. Spacebar", "B. Shift", "C. Enter", "D. Backspace"],
+        answer="C",
+        explanation="The Enter key is used to move the cursor to the beginning of the next line.",
+        category="Class V"
+    ),
+
+    # Class VI - Fundamentals, Shortcuts, Types
+    Question(
+        text="What does RAM stand for?",
+        options=["A. Random Access Memory", "B. Read Access Memory", "C. Run All Memory", "D. Real Active Memory"],
+        answer="A",
+        explanation="RAM stands for Random Access Memory, which is the temporary storage in a computer.",
+        category="Class VI",
+    ),
+    Question(
+        text="Which of these is an input device?",
+        options=["A. Monitor", "B. Printer", "C. Keyboard", "D. Speaker"],
+        answer="C",
+        explanation="A keyboard is an input device used to enter data into the computer.",
+        category="Class VI",
+    ),
+    Question(
+        text="What is the shortcut to select all text in MS-Word?",
+        options=["A. Ctrl + S", "B. Ctrl + A", "C. Ctrl + D", "D. Ctrl + F"],
+        answer="B",
+        explanation="Ctrl + A selects all the text in the document.",
+        category="Class VI",
+    ),
+    Question(
+        text="Which of the following is the most powerful type of computer?",
+        options=["A. Minicomputer", "B. Microcomputer", "C. Mainframe", "D. Supercomputer"],
         answer="D",
-        explanation="Mount Everest at 8,848.86m is the highest peak in Nepal and the world.",
-        category="Nepal general",
+        explanation="Supercomputers are the fastest and most powerful type of computers.",
+        category="Class VI",
     ),
     Question(
-        text="Which city is known as the 'City of Temples' in Nepal?",
-        options=["A. Kathmandu", "B. Pokhara", "C. Bhaktapur", "D. Patan"],
-        answer="C",
-        explanation="Bhaktapur is known as the City of Temples due to its extraordinary concentration of religious monuments.",
-        category="Nepal general",
-    ),
-    Question(
-        text="What is the name of Nepal's national flower?",
-        options=["A. Lotus", "B. Rose", "C. Rhododendron", "D. Marigold"],
-        answer="C",
-        explanation="The Rhododendron (Lali Gurans) is Nepal's national flower. It blooms across the hills in spring.",
-        category="Nepal general",
-    ),
-    Question(
-        text="Which festival is known as the 'Festival of Lights' in Nepal?",
-        options=["A. Dashain", "B. Tihar", "C. Holi", "D. Teej"],
+        text="What is the shortcut key to paste copied text in MS-Word?",
+        options=["A. Ctrl + P", "B. Ctrl + V", "C. Ctrl + C", "D. Ctrl + X"],
         answer="B",
-        explanation="Tihar is Nepal's Festival of Lights, celebrated over five days with oil lamps, candles, and fireworks.",
-        category="festivals",
+        explanation="Ctrl + V is used to paste the copied or cut text.",
+        category="Class VI",
     ),
     Question(
-        text="What is the traditional Nepali new year called?",
-        options=["A. Dashain", "B. Bisket Jatra", "C. Navabarsha", "D. Maghe Sankranti"],
-        answer="C",
-        explanation="Navabarsha (also called Nawa Barsha) is the Nepali New Year, falling in mid-April.",
-        category="festivals",
+        text="What is the full form of URL?",
+        options=["A. Uniform Resource Locator", "B. Universal Radio Link", "C. United Road Line", "D. User Remote Login"],
+        answer="A",
+        explanation="URL stands for Uniform Resource Locator, which is the address of a web page.",
+        category="Class VI"
     ),
     Question(
-        text="Which district of Nepal has the most UNESCO World Heritage Sites?",
-        options=["A. Bhaktapur", "B. Lalitpur", "C. Kathmandu", "D. Kavrepalanchok"],
-        answer="C",
-        explanation="Kathmandu district has the most UNESCO World Heritage Sites including Pashupatinath, Swayambhunath, and Boudhanath.",
-        category="Nepal general",
-    ),
-    Question(
-        text="What is Dal Bhat?",
-        options=["A. A Nepali dessert", "B. Lentil soup with rice — Nepal's national dish", "C. A fried snack", "D. A type of bread"],
+        text="Who is known as the father of modern computers?",
+        options=["A. Bill Gates", "B. Charles Babbage", "C. Steve Jobs", "D. Alan Turing"],
         answer="B",
-        explanation="Dal Bhat is Nepal's national dish — lentil soup served with rice, vegetables, and pickle. Eaten twice daily.",
-        category="food",
+        explanation="Charles Babbage designed the Analytical Engine, the first general-purpose computer design.",
+        category="Class VI"
     ),
     Question(
-        text="Which mountain range does Mount Everest belong to?",
-        options=["A. Annapurna Range", "B. Kanchenjunga Range", "C. Mahalangur Himal", "D. Langtang Range"],
+        text="1 Gigabyte (GB) is equal to how many Megabytes (MB)?",
+        options=["A. 100 MB", "B. 512 MB", "C. 1024 MB", "D. 2048 MB"],
         answer="C",
-        explanation="Mount Everest is part of the Mahalangur Himal sub-range of the Himalayas.",
-        category="geography",
+        explanation="In computing, 1 GB is exactly 1024 MB.",
+        category="Class VI"
     ),
     Question(
-        text="What is the capital city of Nepal?",
-        options=["A. Pokhara", "B. Biratnagar", "C. Lalitpur", "D. Kathmandu"],
+        text="Which language does a computer understand directly?",
+        options=["A. English", "B. Machine Language", "C. Python", "D. HTML"],
+        answer="B",
+        explanation="Computers only understand Machine Language (Binary: 0s and 1s).",
+        category="Class VI"
+    ),
+    Question(
+        text="What is the full form of WWW?",
+        options=["A. World Wide Web", "B. Web Wide World", "C. Wide World Web", "D. World Web Wide"],
+        answer="A",
+        explanation="WWW stands for World Wide Web, the system of interlinked hypertext documents.",
+        category="Class VI"
+    ),
+
+    # Class VII - History, MS-Word Lab
+    Question(
+        text="Who is known as the father of the computer?",
+        options=["A. Alan Turing", "B. Charles Babbage", "C. Bill Gates", "D. Steve Jobs"],
+        answer="B",
+        explanation="Charles Babbage is considered the father of the computer for inventing the Analytical Engine.",
+        category="Class VII",
+    ),
+    Question(
+        text="Which generation of computers used vacuum tubes?",
+        options=["A. First Generation", "B. Second Generation", "C. Third Generation", "D. Fourth Generation"],
+        answer="A",
+        explanation="First-generation computers used vacuum tubes for circuitry.",
+        category="Class VII",
+    ),
+    Question(
+        text="In MS-Word, how do you insert a page break?",
+        options=["A. Ctrl + Enter", "B. Shift + Enter", "C. Alt + Enter", "D. Spacebar"],
+        answer="A",
+        explanation="Ctrl + Enter is the shortcut to insert a manual page break.",
+        category="Class VII",
+    ),
+    Question(
+        text="To change the line spacing to double in MS-Word, what shortcut is used?",
+        options=["A. Ctrl + 1", "B. Ctrl + 2", "C. Ctrl + D", "D. Ctrl + Space"],
+        answer="B",
+        explanation="Ctrl + 2 sets the line spacing of the selected paragraph to double.",
+        category="Class VII",
+    ),
+    Question(
+        text="What was the name of the first electronic general-purpose computer?",
+        options=["A. UNIVAC", "B. ENIAC", "C. EDVAC", "D. ABACUS"],
+        answer="B",
+        explanation="ENIAC (Electronic Numerical Integrator and Computer) was the first electronic general-purpose computer.",
+        category="Class VII",
+    ),
+    Question(
+        text="Which topology uses a central hub to connect all computers?",
+        options=["A. Bus", "B. Ring", "C. Star", "D. Mesh"],
+        answer="C",
+        explanation="In a Star topology, all nodes are connected to a central device like a hub or switch.",
+        category="Class VII"
+    ),
+    Question(
+        text="What does 'BCC' stand for in an Email?",
+        options=["A. Basic Carbon Copy", "B. Blind Carbon Copy", "C. Blue Carbon Copy", "D. Bold Carbon Copy"],
+        answer="B",
+        explanation="BCC (Blind Carbon Copy) allows you to send an email to someone without others seeing their address.",
+        category="Class VII"
+    ),
+    Question(
+        text="Which protocol is used to transfer files over the internet?",
+        options=["A. HTTP", "B. FTP", "C. SMTP", "D. IP"],
+        answer="B",
+        explanation="FTP stands for File Transfer Protocol, specifically designed for moving files between computers.",
+        category="Class VII"
+    ),
+    Question(
+        text="What is the shortcut to 'Undo' the last action?",
+        options=["A. Ctrl + U", "B. Ctrl + Y", "C. Ctrl + Z", "D. Ctrl + Shift + Z"],
+        answer="C",
+        explanation="Ctrl + Z is the universal shortcut for Undo.",
+        category="Class VII"
+    ),
+    Question(
+        text="Which device is used to connect a computer to a telephone line for internet?",
+        options=["A. Router", "B. Switch", "C. Modem", "D. Hub"],
+        answer="C",
+        explanation="A Modem modulates and demodulates signals to allow internet access over phone lines.",
+        category="Class VII"
+    ),
+
+    # Class VIII - History, MS-Word Lab
+    Question(
+        text="Which generation of computers first introduced microprocessors?",
+        options=["A. First", "B. Second", "C. Third", "D. Fourth"],
         answer="D",
-        explanation="Kathmandu is the capital and largest city of Nepal, situated in the Kathmandu Valley.",
-        category="Nepal general",
+        explanation="Fourth-generation computers are characterized by the use of microprocessors.",
+        category="Class VIII",
     ),
     Question(
-        text="Nepal shares its border with which two countries?",
-        options=["A. India and Bangladesh", "B. India and China", "C. China and Bhutan", "D. India and Tibet"],
+        text="Who is credited with being the first computer programmer?",
+        options=["A. Ada Lovelace", "B. Charles Babbage", "C. Grace Hopper", "D. Alan Turing"],
+        answer="A",
+        explanation="Ada Lovelace is widely recognized as the first computer programmer for her work on the Analytical Engine.",
+        category="Class VIII",
+    ),
+    Question(
+        text="In MS-Word, what feature allows you to send the same letter to multiple people?",
+        options=["A. Macro", "B. Mail Merge", "C. Format Painter", "D. Track Changes"],
         answer="B",
-        explanation="Nepal is landlocked between India to the south, east, and west, and China (Tibet) to the north.",
-        category="geography",
+        explanation="Mail Merge is used to create multiple documents, such as personalized letters, at once.",
+        category="Class VIII",
     ),
     Question(
-        text="What is the name of the main stupa in Boudha, Kathmandu?",
-        options=["A. Swayambhunath", "B. Pashupatinath", "C. Boudhanath", "D. Muktinath"],
+        text="How do you create a hanging indent in a MS-Word paragraph?",
+        options=["A. Ctrl + T", "B. Ctrl + M", "C. Ctrl + H", "D. Ctrl + I"],
+        answer="A",
+        explanation="Ctrl + T creates a hanging indent in the current paragraph.",
+        category="Class VIII",
+    ),
+    Question(
+        text="What invention replaced vacuum tubes in the second generation of computers?",
+        options=["A. Integrated Circuits", "B. Microprocessors", "C. Transistors", "D. Diodes"],
         answer="C",
-        explanation="Boudhanath Stupa is one of the largest stupas in the world and a major center of Tibetan Buddhism in Nepal.",
-        category="Nepal general",
+        explanation="Transistors replaced vacuum tubes, making computers smaller, faster, and more reliable.",
+        category="Class VIII",
     ),
     Question(
-        text="Which sport is Nepal's national sport?",
-        options=["A. Football", "B. Cricket", "C. Volleyball", "D. Kabaddi"],
-        answer="C",
-        explanation="Volleyball is the national sport of Nepal, declared so in 2017.",
-        category="sports",
-    ),
-    Question(
-        text="What is Sel Roti?",
-        options=["A. A type of pickle", "B. A rice-based ring-shaped fried bread", "C. A lentil curry", "D. A fermented drink"],
+        text="Which HTML tag is used to create a hyperlink?",
+        options=["A. <link>", "B. <a>", "C. <href>", "D. <url>"],
         answer="B",
-        explanation="Sel Roti is a traditional Nepali homemade sweet ring-shaped bread made from rice flour, especially made during Tihar and Dashain.",
-        category="food",
+        explanation="The <a> (anchor) tag is used with the 'href' attribute to create links in HTML.",
+        category="Class VIII"
     ),
     Question(
-        text="In which year did the massive earthquake hit Nepal?",
-        options=["A. 2013", "B. 2014", "C. 2015", "D. 2016"],
+        text="In Python, which function is used to display output?",
+        options=["A. display()", "B. show()", "C. print()", "D. write()"],
         answer="C",
-        explanation="Nepal was struck by a devastating 7.8 magnitude earthquake on April 25, 2015, killing nearly 9,000 people.",
-        category="Nepal general",
+        explanation="The print() function sends data to the standard output (screen).",
+        category="Class VIII"
     ),
     Question(
-        text="What is the name of the living goddess tradition in Nepal?",
-        options=["A. Devi Mata", "B. Kumari", "C. Durga Devi", "D. Taleju"],
+        text="What does SQL stand for?",
+        options=["A. Simple Query Language", "B. Structured Query Language", "C. System Query Logic", "D. Standard Question List"],
         answer="B",
-        explanation="The Kumari is a living goddess tradition in Nepal — a prepubescent girl selected as the earthly manifestation of the goddess Taleju.",
-        category="Nepal general",
+        explanation="SQL is a standard language for managing and manipulating databases.",
+        category="Class VIII"
     ),
     Question(
-        text="Which Nepali mountaineer first summited Everest alongside Edmund Hillary?",
-        options=["A. Pasang Lhamu Sherpa", "B. Apa Sherpa", "C. Tenzing Norgay", "D. Nirmal Purja"],
+        text="In Python, which of these is used for a single-line comment?",
+        options=["A. //", "B. /*", "C. #", "D. <!--"],
         answer="C",
-        explanation="Tenzing Norgay Sherpa and Edmund Hillary were the first to summit Mount Everest on May 29, 1953.",
-        category="Nepal general",
+        explanation="The # symbol is used for comments in Python.",
+        category="Class VIII"
     ),
     Question(
-        text="What does 'Namaste' literally mean?",
-        options=["A. Good morning", "B. Welcome friend", "C. I bow to the divine in you", "D. Peace be with you"],
-        answer="C",
-        explanation="'Namaste' comes from Sanskrit — 'Namas' means bow, 'te' means to you. It means 'I bow to the divine in you.'",
-        category="Nepal general",
+        text="Which of these is a type of primary memory?",
+        options=["A. Hard Disk", "B. RAM", "C. Pendrive", "D. DVD"],
+        answer="B",
+        explanation="RAM and ROM are the two main types of primary (internal) memory.",
+        category="Class VIII"
     ),
 ]
 
 
-def get_questions(category: str = "Nepal general", n: int = 10) -> list[Question]:
+async def generate_questions(category: str = "Class V", n: int = 10, topic: str = None) -> list[Question]:
     """
-    Returns n shuffled questions.
-    For now returns from the hardcoded bank.
-    Later: fetch from Redis cache generated by Claude API.
+    Returns n generated questions using Gemini API with multi-model fallback.
     """
-    # Filter by category if possible, else use all
+    if not client:
+        print("[WARN] No GEMINI_API_KEY found. Falling back to local QUESTION_BANK.")
+        return get_fallback_questions(category, n)
+        
+    actual_topic = topic if topic else f"Computer fundamentals, history, or basic MS-Word practicals appropriate for {category}"
+    
+    prompt = f"""
+    You are an expert quiz master. Create {n} multiple-choice questions for {category} level students.
+    Topic: {actual_topic}.
+    
+    Output MUST be a raw JSON array of objects. Do not include markdown code blocks.
+    Each object must have exactly these keys: "text", "options", "answer", "explanation", "category".
+    """
+
+    # Try different models in order of efficiency
+    for model_name in ["gemini-1.5-flash", "gemini-1.0-pro"]:
+        try:
+            print(f"[API] Calling {model_name} for topic: {actual_topic}...")
+            response = client.models.generate_content(
+                model=model_name,
+                contents=prompt,
+            )
+            text = response.text.strip()
+            
+            # Clean JSON string
+            if "```" in text:
+                text = text.split("```")[1]
+                if text.startswith("json"):
+                    text = text[4:]
+            
+            data = json.loads(text.strip())
+            questions = [
+                Question(
+                    text=item["text"],
+                    options=item["options"],
+                    answer=item["answer"],
+                    explanation=item["explanation"],
+                    category=item["category"],
+                ) for item in data
+            ]
+            
+            print(f"[API] Successfully generated {len(questions)} questions using {model_name}.")
+            return questions
+            
+        except Exception as e:
+            print(f"[WARN] {model_name} failed: {e}")
+            if "429" in str(e) or "RESOURCE_EXHAUSTED" in str(e):
+                print(f"[INFO] Quota hit for {model_name}, trying next option...")
+                continue
+            break # Stop if it's a non-quota error (like syntax)
+
+    print("[ERROR] All AI options exhausted. Falling back to local QUESTION_BANK.")
+    return get_fallback_questions(category, n)
+
+def get_fallback_questions(category: str, n: int) -> list[Question]:
+    """
+    Returns shuffled questions from the local bank for the specific category.
+    Ensures students only get questions for their grade level.
+    """
     filtered = [q for q in QUESTION_BANK if q.category == category]
-    if len(filtered) < n:
-        filtered = QUESTION_BANK  # fall back to all if not enough
+    
+    # If we found no questions for this category (highly unlikely with our bank),
+    # only then do we use the full bank to prevent a crash.
+    if not filtered:
+        filtered = QUESTION_BANK
 
     shuffled = filtered.copy()
     random.shuffle(shuffled)
+    
+    # If the bank has fewer than n questions, it will return all available for that class.
     return shuffled[:n]

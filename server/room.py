@@ -18,6 +18,8 @@ class Room:
         self.current_q_index = 0
         self.q_start_time = 0.0
         self._game_task = None
+        self.host_ws = None
+        self.question_stats = [] # Store stats for each question
 
     def reset(self):
         """Resets the room for a fresh game start."""
@@ -27,6 +29,7 @@ class Room:
         
         self.state = GameState.LOBBY
         self.current_q_index = 0
+        self.question_stats = []
         for p in self.players.values():
             p.score = 0
             p.answered = False
@@ -42,6 +45,19 @@ class Room:
                 dead_ids.append(pid)
         for pid in dead_ids:
             self.players.pop(pid, None)
+            
+        if self.host_ws:
+            try:
+                await self.host_ws.send_text(message)
+            except Exception:
+                pass
+
+    async def send_to_host(self, data: dict):
+        if self.host_ws:
+            try:
+                await self.host_ws.send_text(json.dumps(data))
+            except Exception:
+                pass
 
     async def send_to(self, player_id: str, data: dict):
         player = self.players.get(player_id)
@@ -64,6 +80,7 @@ class Room:
                 "tole": p.tole,
                 "score": p.score,
                 "streak": p.streak,
+                "avatar": p.avatar,
             }
             for p in sorted_players
         ]
@@ -76,6 +93,7 @@ class Room:
                 "id": player.id,
                 "name": player.name,
                 "tole": player.tole,
+                "avatar": player.avatar,
                 "score": 0,
                 "streak": 0,
             },
@@ -162,8 +180,16 @@ class Room:
         player.answered = True
         player.answer_time = time.time() - self.q_start_time
 
+        # Notify host that this player has answered
+        await self.send_to_host({
+            "event": "player_answered",
+            "player_id": player_id,
+            "name": player.name
+        })
+
         question = self.questions[self.current_q_index]
         is_correct = answer.upper() == question.answer.upper()
+        player.last_correct = is_correct
 
         if is_correct:
             player.streak += 1
@@ -190,6 +216,26 @@ class Room:
 
     async def _run_scoring(self, question: Question):
         self.state = GameState.SCORING
+        
+        # Calculate stats for analytics
+        correct_count = 0
+        total_answered = 0
+        sum_time = 0.0
+        
+        for p in self.players.values():
+            if p.answered:
+                total_answered += 1
+                sum_time += p.answer_time
+                if p.last_correct:
+                    correct_count += 1
+
+        self.question_stats.append({
+            "text": question.text,
+            "correct_count": correct_count,
+            "total_players": len(self.players),
+            "avg_time": round(sum_time / total_answered, 1) if total_answered > 0 else 0
+        })
+        
         await self.broadcast({
             "event": "round_result",
             "correct_answer": question.answer,
@@ -203,4 +249,5 @@ class Room:
         await self.broadcast({
             "event": "game_over",
             "final_leaderboard": self.get_leaderboard(),
+            "analytics": self.question_stats
         })

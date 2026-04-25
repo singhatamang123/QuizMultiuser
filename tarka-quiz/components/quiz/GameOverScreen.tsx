@@ -8,9 +8,29 @@ import { useSoundEffects } from '../../hooks/useSoundEffects'
 import styles from './GameOverScreen.module.css'
 
 export default function GameOverScreen() {
-  const { finalLeaderboard, reset } = useQuizStore()
+  const { finalLeaderboard, reset, isHost } = useQuizStore()
   const { play } = useSoundEffects()
   const winner = finalLeaderboard[0]
+
+  const downloadCSV = () => {
+    const rows = [
+      ['Rank', 'Name', 'Score', 'Max Streak'],
+      ...finalLeaderboard.map((p, i) => [
+        i + 1,
+        p.name,
+        p.score,
+        p.streak ?? 0
+      ])
+    ]
+    const csv = rows.map(r => r.join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `edupulse_results_${new Date().toISOString().slice(0, 10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
 
   useEffect(() => {
     // Play victory fanfare
@@ -84,7 +104,7 @@ export default function GameOverScreen() {
             </span>
 
             <div className={styles.avatar}>
-              {p.name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase()}
+              {p.avatar}
             </div>
 
             <div className={styles.playerInfo}>
@@ -101,6 +121,36 @@ export default function GameOverScreen() {
           </motion.div>
         ))}
       </motion.div>
+
+      {/* Teacher's Analytics */}
+      {isHost && useQuizStore.getState().analytics.length > 0 && (
+        <motion.div 
+          className={styles.analyticsWrap}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.2 }}
+        >
+          <p className={styles.lbTitle}>📊 Teacher's Report (Question Insights)</p>
+          <div className={styles.analyticsList}>
+            {useQuizStore.getState().analytics.map((stat, i) => {
+              const successRate = Math.round((stat.correct_count / stat.total_players) * 100) || 0
+              const isDifficult = successRate < 50
+              return (
+                <div key={i} className={`${styles.statRow} ${isDifficult ? styles.difficult : ''}`}>
+                  <div className={styles.statInfo}>
+                    <p className={styles.statText}>Q{i+1}: {stat.text}</p>
+                    <p className={styles.statMeta}>
+                      Avg Time: <strong>{stat.avg_time}s</strong> · 
+                      Success: <strong style={{ color: isDifficult ? '#EF4444' : '#10B981' }}>{successRate}%</strong>
+                    </p>
+                  </div>
+                  {isDifficult && <span className={styles.alertIcon}>⚠️ Focus</span>}
+                </div>
+              )
+            })}
+          </div>
+        </motion.div>
+      )}
 
       {/* Actions */}
       <motion.div 
@@ -123,12 +173,23 @@ export default function GameOverScreen() {
           className={styles.btnSecondary}
           onClick={() => {
             play('click')
-            const text = `I scored ${winner?.score.toLocaleString()} on Tarka Quiz! Nepal ko sabai bhanda tez trivia 🏆`
+            const text = `I scored ${winner?.score.toLocaleString()} on Edupulse! 🏆`
             navigator.share?.({ text }) ?? navigator.clipboard.writeText(text)
           }}
         >
           Share result
         </motion.button>
+        {isHost && (
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className={styles.btnSecondary}
+            style={{ background: 'rgba(16,185,129,0.15)', borderColor: 'rgba(16,185,129,0.3)', color: '#34D399' }}
+            onClick={() => { play('click'); downloadCSV() }}
+          >
+            📥 Download Results (CSV)
+          </motion.button>
+        )}
       </motion.div>
     </div>
   )

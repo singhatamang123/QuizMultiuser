@@ -1,13 +1,22 @@
 import { create } from 'zustand'
 
-export type GameScreen = 'join' | 'lobby' | 'countdown' | 'question' | 'scoring' | 'gameover' | 'disconnected'
+export type GameScreen = 'join' | 'lobby' | 'review' | 'countdown' | 'question' | 'scoring' | 'gameover' | 'disconnected'
 
 export interface Player {
   id: string
   name: string
   tole: string
+  avatar: string          // ← Emoji or code
   score: number
-  streak: number          // ← remains required
+  streak: number
+}
+
+export interface ReviewQuestion {
+  text: string
+  options: string[]
+  answer: string
+  explanation: string
+  category: string
 }
 
 export interface Question {
@@ -36,6 +45,7 @@ interface QuizState {
   // identity
   myName: string
   myTole: string
+  myAvatar: string
   myId: string
   isHost: boolean
   roomCode: string
@@ -43,6 +53,7 @@ interface QuizState {
   // game
   screen: GameScreen
   players: Player[]
+  reviewQuestions: ReviewQuestion[] | null
   countdown: number
   question: Question | null
   answerResult: AnswerResult | null
@@ -50,12 +61,15 @@ interface QuizState {
   streak: number
   roundResult: RoundResult | null
   finalLeaderboard: Player[]
+  answeredPlayers: string[] // List of IDs who answered current question
+  analytics: any[]
 
   // actions
-  setIdentity: (name: string, tole: string) => void
+  setIdentity: (name: string, tole: string, avatar: string, myId: string) => void
   setRoom: (code: string, isHost: boolean) => void
   setScreen: (s: GameScreen) => void
   setPlayers: (p: Player[]) => void
+  setReviewQuestions: (q: ReviewQuestion[] | null) => void
   addPlayer: (p: Player) => void
   removePlayer: (id: string) => void
   setCountdown: (n: number) => void
@@ -64,14 +78,16 @@ interface QuizState {
   setAnswerResult: (r: AnswerResult) => void
   setStreak: (n: number) => void
   setRoundResult: (r: RoundResult) => void
-  setFinalLeaderboard: (lb: Player[]) => void
+  setFinalLeaderboard: (lb: Player[], analytics?: any[]) => void
+  addAnsweredPlayer: (id: string) => void
   reset: () => void
 }
 
 const initial = {
-  myName: '', myTole: '', myId: '', isHost: false, roomCode: '',
+  myName: '', myTole: '', myAvatar: '👤', myId: '', isHost: false, roomCode: '',
   screen: 'join' as GameScreen,
   players: [], 
+  reviewQuestions: null,
   countdown: 3, 
   question: null,
   answerResult: null, 
@@ -79,26 +95,35 @@ const initial = {
   streak: 0,
   roundResult: null, 
   finalLeaderboard: [],
+  answeredPlayers: [],
+  analytics: [],
 }
 
 export const useQuizStore = create<QuizState>((set) => ({
   ...initial,
-  setIdentity: (myName, myTole) => set({ myName, myTole }),
+  setIdentity: (myName, myTole, myAvatar, myId) => set({ myName, myTole, myAvatar, myId }),
   setRoom: (roomCode, isHost) => set({ roomCode, isHost }),
   setScreen: (screen) => set({ screen }),
   setPlayers: (players) => set({ players }),
+  setReviewQuestions: (reviewQuestions) => set({ reviewQuestions }),
   addPlayer: (p) => set((s) => {
     if (s.players.find(x => x.id === p.id)) return s
     return { players: [...s.players, p] }
   }),
   removePlayer: (id) => set((s) => ({ players: s.players.filter(p => p.id !== id) })),
   setCountdown: (countdown) => set({ countdown }),
-  setQuestion: (question) => set({ question, selectedAnswer: null, answerResult: null }),
+  setQuestion: (question) => set({ 
+    question, 
+    selectedAnswer: null, 
+    answerResult: null,
+    answeredPlayers: [] // Reset for new question
+  }),
   setSelectedAnswer: (selectedAnswer) => set({ selectedAnswer }),
   setAnswerResult: (answerResult) => set({ answerResult, streak: answerResult.streak }),
   setStreak: (streak) => set({ streak }),
   setRoundResult: (roundResult) => set({ roundResult }),
-  setFinalLeaderboard: (finalLeaderboard) => set({ finalLeaderboard }),
+  setFinalLeaderboard: (finalLeaderboard, analytics) => set({ finalLeaderboard, analytics: analytics ?? [] }),
+  addAnsweredPlayer: (id) => set((s) => ({ answeredPlayers: [...s.answeredPlayers, id] })),
   reset: () => set(initial),
 }))
 

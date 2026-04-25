@@ -48,6 +48,7 @@ export default function QuestionScreen() {
   if (!question) return null
 
   const pct = Math.round((timeLeft / question.time_limit) * 100)
+  const isUrgent = timeLeft <= 5 && timeLeft > 0 && !answerResult
   const timerColor = timeLeft > 10 ? 'var(--primary)' : timeLeft > 5 ? '#F59E0B' : 'var(--error)'
 
   const getOptClass = (letter: string) => {
@@ -69,7 +70,7 @@ export default function QuestionScreen() {
   }
 
   const handlePick = (letter: string) => {
-    if (selectedAnswer) return
+    if (selectedAnswer || useQuizStore.getState().isHost) return
     play('click')
     useQuizStore.getState().setSelectedAnswer(letter)
     // Server is usually processing answer here
@@ -77,7 +78,7 @@ export default function QuestionScreen() {
   }
 
   return (
-    <div className={styles.page}>
+    <div className={`${styles.page} ${isUrgent ? styles.urgentBg : ''}`}>
       {/* Header row */}
       <motion.div 
         className={styles.header}
@@ -85,7 +86,7 @@ export default function QuestionScreen() {
         animate={{ opacity: 1, y: 0 }}
       >
         <span className={styles.questionMeta}>
-          Question <strong>{question.index + 1}</strong> of {question.total}
+          Question <strong>{question.index}</strong> of {question.total}
           {' · '}
           <span className={styles.category}>{question.category}</span>
         </span>
@@ -148,43 +149,73 @@ export default function QuestionScreen() {
       {/* Status message */}
       <div className={styles.statusWrap}>
         <AnimatePresence mode="wait">
-          {selectedAnswer && !answerResult && (
-            <motion.p 
-              key="waiting"
-              className={styles.statusWaiting}
+          {/* Admin Live Tracker */}
+          {useQuizStore.getState().isHost ? (
+            <motion.div 
+              className={styles.adminTracker}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
             >
-              Answer locked. Waiting for others...
-            </motion.p>
-          )}
-          {answerResult && (
-            <motion.p 
-              key="result"
-              className={`${styles.statusResult} ${answerResult.correct ? styles.correct : styles.wrong}`}
-              initial={{ opacity: 0, scale: 0.8, rotate: answerResult.correct ? -2 : 2 }}
-              animate={{ opacity: 1, scale: 1, rotate: 0 }}
-              transition={{ type: "spring", bounce: 0.6 }}
-            >
-              {answerResult.correct
-                ? (
-                  <div className={styles.correctInfo}>
-                    <span>Correct! +{answerResult.points.toLocaleString()} pts</span>
-                    {answerResult.streak > 1 && (
-                      <motion.div 
-                        className={styles.streakBadge}
-                        initial={{ scale: 0, rotate: -20 }}
-                        animate={{ scale: 1, rotate: 0 }}
-                        transition={{ type: "spring", bounce: 0.7 }}
-                      >
-                        🔥 {answerResult.streak} STREAK
-                      </motion.div>
-                    )}
-                  </div>
-                )
-                : 'Wrong answer'}
-            </motion.p>
+              <div className={styles.trackerHeader}>
+                Live Answer Tracker ({useQuizStore.getState().answeredPlayers.length} / {useQuizStore.getState().players.length})
+              </div>
+              <div className={styles.trackerDots}>
+                {useQuizStore.getState().players.map(p => {
+                  const hasAnswered = useQuizStore.getState().answeredPlayers.includes(p.id)
+                  return (
+                    <motion.div 
+                      key={p.id}
+                      className={`${styles.trackerDot} ${hasAnswered ? styles.dotDone : ''}`}
+                      animate={hasAnswered ? { scale: [1, 1.2, 1] } : {}}
+                      title={p.name}
+                    >
+                      {p.avatar}
+                    </motion.div>
+                  )
+                })}
+              </div>
+            </motion.div>
+          ) : (
+            <>
+              {selectedAnswer && !answerResult && (
+                <motion.div 
+                  key="waiting"
+                  className={styles.statusWaiting}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                >
+                  Answer locked. Waiting for others...
+                </motion.div>
+              )}
+              {answerResult && (
+                <motion.div 
+                  key="result"
+                  className={`${styles.statusResult} ${answerResult.correct ? styles.correct : styles.wrong}`}
+                  initial={{ opacity: 0, scale: 0.8, rotate: answerResult.correct ? -2 : 2 }}
+                  animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                  transition={{ type: "spring", bounce: 0.6 }}
+                >
+                  {answerResult.correct
+                    ? (
+                      <div className={styles.correctInfo}>
+                        <span>Correct! +{answerResult.points.toLocaleString()} pts</span>
+                        {answerResult.streak > 1 && (
+                          <motion.div 
+                            className={styles.streakBadge}
+                            initial={{ scale: 0, rotate: -20 }}
+                            animate={{ scale: 1, rotate: 0 }}
+                            transition={{ type: "spring", bounce: 0.7 }}
+                          >
+                            🔥 {answerResult.streak} STREAK
+                          </motion.div>
+                        )}
+                      </div>
+                    )
+                    : 'Wrong answer'}
+                </motion.div>
+              )}
+            </>
           )}
         </AnimatePresence>
       </div>

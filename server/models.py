@@ -16,9 +16,11 @@ class Player:
     id: str
     name: str
     tole: str
+    avatar: str = "👤"
     score: int = 0
     streak: int = 0
     answered: bool = False
+    last_correct: bool = False
     answer_time: float = 0.0
     ws: Any = None
 

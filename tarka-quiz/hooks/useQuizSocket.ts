@@ -28,7 +28,7 @@ let globalWs: WebSocket | null = null
 export function useQuizSocket() {
   const store = useQuizStore()
 
-  const connect = useCallback((roomCode: string, name: string, tole: string) => {
+  const connect = useCallback((roomCode: string, name: string, tole: string, avatar: string) => {
     // Close any existing connection first
     if (globalWs) {
       globalWs.close()
@@ -36,7 +36,7 @@ export function useQuizSocket() {
     }
 
     const playerId = getOrCreateId()
-    store.setIdentity(name, tole)
+    store.setIdentity(name, tole, avatar, playerId)
 
     const wsUrl = getWsUrl()
     const url = `${wsUrl}/ws/${roomCode.toUpperCase()}/${playerId}`
@@ -48,7 +48,7 @@ export function useQuizSocket() {
     socket.onopen = () => {
       console.log('[WS] Connected')
       // Send join payload immediately on open
-      const payload = JSON.stringify({ name, tole })
+      const payload = JSON.stringify({ name, tole, avatar })
       socket.send(payload)
       console.log('[WS] Sent join payload:', payload)
     }
@@ -76,8 +76,25 @@ export function useQuizSocket() {
           store.addPlayer(msg.player)
           break
 
+        case 'player_answered':
+          store.addAnsweredPlayer(msg.player_id)
+          break
+
         case 'player_left':
           store.removePlayer(msg.player_id)
+          break
+
+        case 'kicked':
+          store.setScreen('disconnected')
+          break
+
+        case 'error':
+          alert(msg.message || 'An error occurred.')
+          break
+
+        case 'review_questions':
+          store.setReviewQuestions(msg.questions)
+          store.setScreen('review')
           break
 
         case 'countdown':
@@ -116,8 +133,12 @@ export function useQuizSocket() {
           break
 
         case 'game_over':
-          store.setFinalLeaderboard(msg.final_leaderboard ?? [])
+          store.setFinalLeaderboard(msg.final_leaderboard ?? [], msg.analytics)
           store.setScreen('gameover')
+          break
+        
+        case 'game_stopped':
+          store.setScreen('join')
           break
 
         default:
@@ -146,8 +167,8 @@ export function useQuizSocket() {
     }
   }, [])
 
-  const startGame = useCallback((category: string) => {
-    send({ event: 'start_game', category })
+  const startGame = useCallback((category: string, topic?: string, questions?: object[]) => {
+    send({ event: 'start_game', category, topic, questions })
   }, [send])
 
   const sendAnswer = useCallback((answer: string) => {
@@ -155,10 +176,22 @@ export function useQuizSocket() {
     store.setSelectedAnswer(answer)
   }, [send])
 
+  const kickPlayer = useCallback((playerId: string) => {
+    send({ event: 'kick_player', player_id: playerId })
+  }, [send])
+
+  const approveQuestions = useCallback((questions: object[]) => {
+    send({ event: 'approve_questions', questions })
+  }, [send])
+
   const disconnect = useCallback(() => {
     globalWs?.close()
     globalWs = null
   }, [])
 
-  return { connect, startGame, sendAnswer, disconnect }
+  const stopGame = useCallback(() => {
+    send({ event: 'stop_game' })
+  }, [send])
+
+  return { connect, startGame, sendAnswer, kickPlayer, approveQuestions, disconnect, stopGame }
 }

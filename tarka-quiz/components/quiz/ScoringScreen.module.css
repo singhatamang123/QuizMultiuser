@@ -88,16 +88,11 @@
 .avatar {
   width: 52px;
   height: 52px;
-  border-radius: 50%;
-  background: var(--bg-start);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
-  font-weight: 900;
-  color: white;
-  border: 4px solid white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-size: 32px;
+  flex-shrink: 0;
 }
 
 .playerInfo {
@@ -153,4 +148,58 @@
   margin-left: 8px;
   filter: drop-shadow(0 0 4px rgba(251, 86, 7, 0.4));
   font-size: 0.9em;
+}
+@media (max-width: 600px) {
+  .page {
+    padding: 16px 12px;
+  }
+
+  .banner {
+    padding: 20px 16px;
+    margin-bottom: 20px;
+  }
+
+  .bannerTitle {
+    font-size: 20px;
+  }
+
+  .bannerSub {
+    font-size: 14px;
+  }
+
+  .lbTitle {
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+
+  .playerRow {
+    padding: 10px 16px;
+    gap: 12px;
+    border-radius: 18px;
+    margin-bottom: 10px;
+  }
+
+  .rankNumber {
+    font-size: 18px;
+    width: 24px;
+  }
+
+  .avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+    border-width: 3px;
+  }
+
+  .playerName {
+    font-size: 16px;
+  }
+
+  .playerTole {
+    font-size: 12px;
+  }
+
+  .playerScore {
+    font-size: 18px;
+  }
 }

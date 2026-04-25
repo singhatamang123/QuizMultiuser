@@ -1,15 +1,15 @@
 'use client'
 
-import { useQuizStore } from '../store/quizStore'
-import JoinScreen from '../components/quiz/JoinScreen'
-import LobbyScreen from '../components/quiz/LobbyScreen'
-import CountdownScreen from '../components/quiz/CountdownScreen'
-import QuestionScreen from '../components/quiz/QuestionScreen'
-import ScoringScreen from '../components/quiz/ScoringScreen'
-import GameOverScreen from '../components/quiz/GameOverScreen'
-import ReviewScreen from '../components/quiz/ReviewScreen'
+import { useQuizStore } from '../../store/quizStore'
+import AdminScreen from '../../components/quiz/AdminScreen'
+import LobbyScreen from '../../components/quiz/LobbyScreen'
+import CountdownScreen from '../../components/quiz/CountdownScreen'
+import QuestionScreen from '../../components/quiz/QuestionScreen'
+import ScoringScreen from '../../components/quiz/ScoringScreen'
+import GameOverScreen from '../../components/quiz/GameOverScreen'
+import ReviewScreen from '../../components/quiz/ReviewScreen'
 
-export default function Page() {
+export default function AdminPage() {
   const screen = useQuizStore(s => s.screen)
   const reset = useQuizStore(s => s.reset)
 
@@ -30,11 +30,11 @@ export default function Page() {
           padding: '8px 20px', background: '#7C3AED', color: '#fff',
           border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px',
         }}>
-          Back to home
+          Back to Admin Start
         </button>
       </div>
     )
-    return <JoinScreen />
+    return <AdminScreen />
   }
 
   return (
