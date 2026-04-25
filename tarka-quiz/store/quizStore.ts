@@ -132,9 +132,9 @@ export function mockLobby() {
   const s = useQuizStore.getState()
   s.setRoom('TARK42', true)
   s.setPlayers([
-    { id: '1', name: 'Aarav Sharma', tole: 'Patan', score: 0, streak: 0 },   // ← Fixed
-    { id: '2', name: 'Priya KC',     tole: 'Thamel', score: 0, streak: 0 },   // ← Fixed
-    { id: '3', name: 'Rohan Thapa',  tole: 'Baneshwor', score: 0, streak: 0 } // ← Fixed
+    { id: '1', name: 'Aarav Sharma', tole: 'Patan', score: 0, streak: 0, avatar: '👤' },
+    { id: '2', name: 'Priya KC',     tole: 'Thamel', score: 0, streak: 0, avatar: '👤' },
+    { id: '3', name: 'Rohan Thapa',  tole: 'Baneshwor', score: 0, streak: 0, avatar: '👤' }
   ])
   s.setScreen('lobby')
 }
@@ -165,9 +165,9 @@ export function mockScoring() {
     correct_answer: 'C',
     explanation: 'Pashupatinath Temple is on the banks of the Bagmati River in Kathmandu.',
     leaderboard: [
-      { id: '1', name: 'Aarav Sharma', tole: 'Patan', score: 850, streak: 3 },   // ← Fixed
-      { id: '3', name: 'Rohan Thapa',  tole: 'Baneshwor', score: 700, streak: 1 }, // ← Fixed
-      { id: '2', name: 'Priya KC',     tole: 'Thamel', score: 620, streak: 0 }    // ← Fixed
+      { id: '1', name: 'Aarav Sharma', tole: 'Patan', score: 850, streak: 3, avatar: '👤' },
+      { id: '3', name: 'Rohan Thapa',  tole: 'Baneshwor', score: 700, streak: 1, avatar: '👤' },
+      { id: '2', name: 'Priya KC',     tole: 'Thamel', score: 620, streak: 0, avatar: '👤' }
     ],
   })
   s.setScreen('scoring')
@@ -176,9 +176,9 @@ export function mockScoring() {
 export function mockGameOver() {
   const s = useQuizStore.getState()
   s.setFinalLeaderboard([
-    { id: '1', name: 'Aarav Sharma', tole: 'Patan', score: 8420, streak: 5 },    // ← Fixed
-    { id: '3', name: 'Rohan Thapa',  tole: 'Baneshwor', score: 7100, streak: 2 }, // ← Fixed
-    { id: '2', name: 'Priya KC',     tole: 'Thamel', score: 6250, streak: 1 }    // ← Fixed
+    { id: '1', name: 'Aarav Sharma', tole: 'Patan', score: 8420, streak: 5, avatar: '👤' },
+    { id: '3', name: 'Rohan Thapa',  tole: 'Baneshwor', score: 7100, streak: 2, avatar: '👤' },
+    { id: '2', name: 'Priya KC',     tole: 'Thamel', score: 6250, streak: 1, avatar: '👤' }
   ])
   s.setScreen('gameover')
 }
